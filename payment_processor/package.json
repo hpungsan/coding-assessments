@@ -1,0 +1,14 @@
+{
+  "name": "payment-processor",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@types/node": "^25.2.3",
+    "typescript": "^5.4.0",
+    "vitest": "^4.0.0"
+  }
+}

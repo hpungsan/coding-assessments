@@ -20,7 +20,7 @@ Max 4 transactions can be active at once. Any additional submits are queued FIFO
 Duplicate requests with the same idempotency key must be safe. No double-charges, no duplicate state transitions. Return the original response for repeated requests.
 
 ### Level 4 — Timeouts
-Transactions expire if stuck in any state too long. Define per-state TTLs. Expired transactions are cleaned up and their slot is freed for queued work.
+Transactions expire if stuck in any state too long. Define per-state TTLs. Expired transactions move to a terminal state and their slot is freed for queued work.
 
 ### Level 5 — Retries
 Authorize and capture can fail. Implement retry logic with exponential backoff. Track attempt counts and fail permanently after max retries.
@@ -33,6 +33,9 @@ Replace FIFO queuing with priority-based ordering. High-value transactions get p
 
 ### Level 8 — Webhooks
 Fire async notifications on every state change. Webhook delivery should be best-effort with retry. Consumers register a callback URL per transaction.
+
+### Level 9 — Dead Letter Queue
+Expired transactions, permanently failed transactions, and dropped webhooks all land in a DLQ. Provide an API to inspect the queue and reprocess entries (re-submit a failed tx, re-queue a dropped webhook). Reprocessing respects capacity limits.
 
 ## Setup
 
