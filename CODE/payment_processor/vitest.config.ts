@@ -5,7 +5,7 @@ const solutionLevel = process.env.SOLUTION_LEVEL;
 const runAll = process.env.RUN_ALL_TESTS === "1";
 
 function testIncludes(): string[] | undefined {
-  if (!solutionLevel || runAll) return undefined;
+  if (!solutionLevel || runAll) return ["tests/**/*.test.ts"];
   const n = parseInt(solutionLevel, 10);
   return Array.from({ length: n }, (_, i) => `tests/level-${i + 1}.test.ts`);
 }

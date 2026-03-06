@@ -2,25 +2,31 @@
 
 ## Repo Purpose
 
-Interview prep for timed coding assessments (not leetcode). Each subdirectory is a self-contained challenge with leveled tasks that build cumulatively.
+Interview prep split into two tracks:
+- **CODE/** — timed coding assessments (not leetcode). Each subdirectory is a self-contained challenge with leveled tasks that build cumulatively.
+- **STUDY-NOTES/** — system design and LLD study notes in Markdown.
 
 ## Repo Structure
 
 ```
 intv_prep/
-  payment_processor/    # first assessment (TypeScript, vitest)
-  rate_limiter/         # planned
-  validation_system/    # planned (Java)
-  parking_lot/          # planned
-  food_delivery/        # planned
+  CODE/
+    payment_processor/    # first assessment (TypeScript, vitest)
+    rate_limiter/         # planned
+    validation_system/    # planned (Java)
+    parking_lot/          # planned
+    food_delivery/        # planned
+    dev/                  # internal design docs
+  STUDY-NOTES/
+    cur.md                # current working notes
 ```
 
 ## Assessment Structure (convention for all challenges)
 
-Each assessment follows the same pattern:
+Each assessment under `CODE/` follows the same pattern:
 
 ```
-<assessment>/
+CODE/<assessment>/
   README.md              # candidate-facing instructions — levels + rules
   DESIGN.md              # internal specs for unbuilt levels (not for candidates)
   package.json           # or build file for the language
