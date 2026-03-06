@@ -11,7 +11,7 @@ export class PaymentProcessor {
 
   handle(request: PaymentRequest): PaymentResponse[] {
     // TODO: implement
-    return [];
+    return [{ id: request.id, status: "IGNORED", message: "Not implemented" }];
   }
 
   tick(): string[] {

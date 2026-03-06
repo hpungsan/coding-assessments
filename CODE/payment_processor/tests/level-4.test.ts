@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { PaymentProcessor } from "@handler";
-import { STATE_TTLS } from "../src/config";
+import { STATE_TTLS, IDEMPOTENCY_TTL } from "../src/config";
 
 describe("Level 4 - Timeouts", () => {
   let now: number;
@@ -118,5 +118,31 @@ describe("Level 4 - Timeouts", () => {
     now = 1_010_000 + STATE_TTLS.PENDING!; // 1_040_000
     const signals2 = pp.tick();
     expect(signals2).toContain("tx2:expired");
+  });
+
+  it("should not serve expired idempotency cache entry", () => {
+    pp.handle({ id: "tx1", type: "submit", idempotencyKey: "key1" });
+    now += IDEMPOTENCY_TTL;
+    // Cache expired — re-processed, tx already exists
+    const r = pp.handle({ id: "tx1", type: "submit", idempotencyKey: "key1" });
+    expect(r[0].status).toBe("IGNORED");
+    expect(r[0].message).toBe("Transaction already exists");
+  });
+
+  it("should allow reuse of expired idempotency key without conflict", () => {
+    pp.handle({ id: "tx1", type: "submit", idempotencyKey: "shared-key" });
+    now += IDEMPOTENCY_TTL;
+    const r = pp.handle({ id: "tx2", type: "submit", idempotencyKey: "shared-key" });
+    expect(r[0].status).toBe("PENDING");
+    expect(r[0].id).toBe("tx2");
+  });
+
+  it("should evict expired idempotency entries on tick()", () => {
+    pp.handle({ id: "tx1", type: "submit", idempotencyKey: "key1" });
+    now += IDEMPOTENCY_TTL;
+    pp.tick();
+    // After tick eviction, same key re-processed normally
+    const r = pp.handle({ id: "tx1", type: "submit", idempotencyKey: "key1" });
+    expect(r[0].status).toBe("IGNORED");
   });
 });

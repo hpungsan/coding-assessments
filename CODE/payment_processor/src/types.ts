@@ -29,7 +29,7 @@ export interface PaymentRequest {
 
 export interface PaymentResponse {
   id: string;
-  status: TransactionStatus | "QUEUED" | "IGNORED";
+  status: TransactionStatus | "QUEUED" | "IGNORED" | "CONFLICT";
   message: string;
 }
 

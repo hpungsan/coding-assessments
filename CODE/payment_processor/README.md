@@ -17,7 +17,7 @@ Enforce strict in-order state transitions per transaction. A transaction must go
 Max 4 transactions can be active at once. Any additional submits are queued FIFO and promoted when a slot opens up (on complete).
 
 ### Level 3 — Idempotency
-Duplicate requests with the same idempotency key must be safe. No double-charges, no duplicate state transitions. Return the original response for repeated requests.
+Duplicate requests with the same idempotency key must be safe. No double-charges, no duplicate state transitions. Return the original response for repeated requests. If a different request reuses an existing key, reject it as a conflict. Cached responses expire after a configurable TTL (`IDEMPOTENCY_TTL`). Expired entries must not be served — they are treated as cache misses. `tick()` should clean up stale entries for memory hygiene.
 
 ### Level 4 — Timeouts
 Transactions expire if stuck in any state too long. Define per-state TTLs. Expired transactions move to a terminal state and their slot is freed for queued work.

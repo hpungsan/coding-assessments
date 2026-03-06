@@ -19,6 +19,7 @@ export class PaymentProcessor {
   private transactions = new Map<string, TransactionStatus>();
   private activeCount = 0;
   private queue: QueueEntry[] = [];
+  private queueHead = 0;
   private queued = new Set<string>();
 
   constructor(_clock?: () => number) {}
@@ -32,7 +33,13 @@ export class PaymentProcessor {
       }
 
       if (this.activeCount >= MAX_ACTIVE) {
-        this.queue.push({ id, action: "submit", amount: request.amount ?? 0 });
+        this.queue.push({
+          id,
+          action: "submit",
+          amount: request.amount ?? 0,
+          idempotencyKey: request.idempotencyKey,
+          webhookUrl: request.webhookUrl,
+        });
         this.queued.add(id);
         return [{ id, status: "QUEUED", message: "At capacity, queued" }];
       }
@@ -71,12 +78,20 @@ export class PaymentProcessor {
   }
 
   private promoteQueue(responses: PaymentResponse[]): void {
-    if (this.queue.length === 0 || this.activeCount >= MAX_ACTIVE) return;
-    const entry = this.queue.shift()!;
+    if (this.queueHead >= this.queue.length || this.activeCount >= MAX_ACTIVE) return;
+    const entry = this.queue[this.queueHead++];
     this.queued.delete(entry.id);
     this.transactions.set(entry.id, "PENDING");
     this.activeCount++;
     responses.push({ id: entry.id, status: "PENDING", message: "Promoted from queue" });
+    this.compactQueue();
+  }
+
+  private compactQueue(): void {
+    if (this.queueHead > 0 && this.queueHead >= this.queue.length / 2) {
+      this.queue = this.queue.slice(this.queueHead);
+      this.queueHead = 0;
+    }
   }
 
   tick(): string[] {

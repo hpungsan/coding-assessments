@@ -11,6 +11,8 @@ export const STATE_TTLS: Partial<Record<TransactionStatus, number>> = {
   REFUND_PENDING: 30_000,
 };
 
+export const IDEMPOTENCY_TTL = 300_000; // 5 minutes
+
 export function backoffMs(attempt: number): number {
   return 1000 * Math.pow(2, attempt);
 }
